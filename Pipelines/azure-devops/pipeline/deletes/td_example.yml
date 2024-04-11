@@ -1,0 +1,2 @@
+- !delete
+  record: !host system:serviceaccount:demo-namespace:demo-serviceaccount
