@@ -22,9 +22,9 @@ The pipeline will use `git diff-tree` to establish a list of committed files, ig
 - [CONJUR_ACCOUNT](pipeline/azure-pipelines.yml#L9)
   - API Account
 - [CONJUR_HOST](pipeline/azure-pipelines.yml#L17)
-  - Configured Host [pipeline variable](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch)
+  - Configured Host [pipeline variable](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/set-secret-variables?view=azure-devops)
 - [CONJUR_API](pipeline/azure-pipelines.yml#L17)
-  - Configured API Key [pipeline variable](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch)
+  - Configured API Key [pipeline variable](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/set-secret-variables?view=azure-devops)
 
 ### Folder Conventions
 Folders should be organized to represent the `policy` branch or organized by function. These files should not be in the `root` directory of the repository. 
