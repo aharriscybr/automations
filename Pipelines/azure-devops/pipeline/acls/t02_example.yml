@@ -1,0 +1,4 @@
+#SafeName
+- !grant
+  role: !group consumers
+  member: !host /{{ apps branch }}/system:serviceaccount:demo-namespace:demo-serviceaccount

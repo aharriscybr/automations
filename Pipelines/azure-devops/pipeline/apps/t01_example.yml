@@ -1,0 +1,11 @@
+# Example Template for Kubernetes JWT enabled identity
+- !host
+  id: system:serviceaccount:demo-namespace:demo-serviceaccount
+  annotations:
+    authn-jwt/cluster/sub: system:serviceaccount:demo-namespace:demo-serviceaccount
+    authn-jwt/cluster/kubernetes.io/namespace: demo-namespace
+    authn-jwt/cluster/kubernetes.io/serviceaccount/name: demo-serviceaccount
+
+- !grant
+  role: !group authns
+  member: !host id: system:serviceaccount:demo-namespace:demo-serviceaccount
