@@ -3,7 +3,7 @@
 <p>Azure Devops Only supports Host + API Key. JWT Tokens are not currently available from Azure Dev Ops</p>
 
 ### Synopsis
-The pipeline will use `git diff-tree` to establish a list of committed files, ignoring deleted files. This list will be ordered via the numerical ordering convention and providing a path to test and apply to Conjur. 
+The pipeline will use `git diff-tree` to establish a list of committed files, ignoring deleted files. This list will be ordered via the numerical ordering convention and providing a path to test and apply to Conjur. The pipeline script will [filter](pipeline/azure-pipelines.yml#L24) the files with the conventions described below.
 
 ### Requirements
 - Host / Api key
@@ -11,6 +11,16 @@ The pipeline will use `git diff-tree` to establish a list of committed files, ig
 - Conjur URL
   - Supported Deployments: Cloud/Enterprise/OSS
 - Policy Branch for Hosts
+
+### Configuration
+- [CONJUR_APPLIANCE_URL](pipeline/azure-pipelines.yml#L3)
+  - URL to Conjur Leader Load balancer
+- [CONJUR_HOST_BRANCH](pipeline/azure-pipelines.yml#L5)
+  - Branch where hosts will be created
+- [CONJUR_VAULT_PATH](pipeline/azure-pipelines.yml#L7)
+  - Static Vault path for this pipeline
+- [CONJUR_ACCOUNT](pipeline/azure-pipelines.yml#L9)
+  - API Account
 
 ### Folder Conventions
 Folders should be organized to represent the `policy` branch or organized by function. These files should not be in the `root` directory of the repository. 
@@ -47,5 +57,6 @@ We will be using a numerical prefix to identify files:
 ### Flow
 1. Commit template to appropriate folder
 2. Merge commits to main
-3. Validate pipeline executed successfully
-4. Validate resources in Conjur are as expected
+3. Pipeline execution begins, processing files, authenticating and applying them to Conjur.
+4. Validate pipeline executed successfully
+5. Validate resources in Conjur are as expected
