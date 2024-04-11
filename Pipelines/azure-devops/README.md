@@ -39,7 +39,7 @@ We will be using a numerical prefix to identify files:
   - Examine the [example](pipeline/apps/t01_example.yml)
 - 02_
   - A 02_ prefixed file designates a host resource granting acl safe access on commit. 
-  - The pipeline will read the first line of the file, extracting the safe name and applying it to a static api path defined in the [pipeline](pipeline/azure-pipelines.yml:7)
+  - The pipeline will read the first line of the file, extracting the safe name and applying it to a static api path defined in the [pipeline](pipeline/azure-pipelines.yml#L7)
   - This file must have the safename as a comment in the first line of the file. Please follow the [example](pipeline/acls/t02_example.yml)
 - d_
   - A d_ prefixed file designates a host resource to be deleted on commit. 
