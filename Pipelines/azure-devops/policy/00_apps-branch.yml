@@ -1,0 +1,6 @@
+- !group
+  id: {{ apps branch}}-admins
+
+- !policy
+  id: {{ apps branch }}
+  owner: !group {{ apps branch }}-admins

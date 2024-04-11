@@ -1,0 +1,16 @@
+# Create ADO Automation Host
+- !host
+  id: ado-automation
+  annotations:
+    authn/api-key: true
+
+# Grant Vault Permissions
+- !grant
+  role: !group vault-admins
+  member: !host ado-automation
+
+# Grant App Branch Ownership
+# Please update {{ app branch}} to configured applications branch
+- !grant
+  role: !group {{ app branch }}-owners
+  member: !host ado-automation

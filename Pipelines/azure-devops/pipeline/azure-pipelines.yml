@@ -1,0 +1,46 @@
+variables:
+    - name: CONJUR_APPLIANCE_URL
+      value: "https://sme-andrew.secretsmgr.cyberark.cloud/api"
+    - name: CONJUR_HOST_BRANCH
+      value: "data/apps"
+    - name: CONJUR_VAULT_PATH
+      value: "data/vault"
+    - name: CONJUR_ACCOUNT
+      value: "conjur"
+  trigger:
+  - main
+  steps:
+    - checkout: self
+      fetchDepth: 0
+    - script: |    
+        echo "Authenticating to Conjur Cloud"
+        SESSION=$(curl -s "$CONJUR_APPLIANCE_URL/authn/$CONJUR_ACCOUNT/$(CONJUR_HOST)/authenticate" -H "Accept-Encoding:base64" -d "$(CONJUR_API)")
+        files=$(git diff-tree --no-commit-id --diff-filter=d --name-only -r $(Build.SourceVersion))
+        for f in $files
+          do
+            if [ "$f" == "azure-pipelines.yml" ]; then
+              echo "Skipping $f"
+            elif [ -f "$f" ]; then
+            if [[ "$f" == */01_*.yml ]]; then
+              echo "01 file found, creating host..."
+              cat $f
+              curl -H "Authorization:Token token=\"${SESSION}\"" -X PATCH "$CONJUR_APPLIANCE_URL/policies/$CONJUR_ACCOUNT/policy/$CONJUR_HOST_BRANCH" -d "$(cat $f)"
+            fi
+            if [[ "$f" == */02_*.yml ]]; then
+              echo "02 file found, updating host..."
+              SAFE=$(head -n 1 $f)
+              SAFEAPI=$( echo "$SAFE" | tr -d "\#" | tr -d "\r")
+              echo "found api path: $SAFEAPI"
+              cat $f
+              curl -H "Authorization:Token token=\"${SESSION}\"" "$CONJUR_APPLIANCE_URL/policies/$CONJUR_ACCOUNT/policy/$CONJUR_VAULT_PATH/$SAFEAPI/delegation" -d "$(cat $f)"
+            fi
+            if [[ "$f" == */d_*.yml ]]; then
+              echo "Delete file found, removing host..."
+              cat $f
+              curl -H "Authorization:Token token=\"${SESSION}\"" -X PATCH "$CONJUR_APPLIANCE_URL/policies/$CONJUR_ACCOUNT/policy/$CONJUR_HOST_BRANCH" -d "$(cat $f)"
+            fi
+            else
+              echo "Skipping $f - not found"
+            fi
+          done
+      displayName: Onboard
