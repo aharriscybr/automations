@@ -1,0 +1,20 @@
+name: Policy Onboarding
+
+# Watch Policy branch
+on:
+  push:
+    branch:
+      -  policy
+
+jobs:
+  runs-on: ["self-hosted"]
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Onboard to Conjur
+      env:
+        CONJUR_URL: ""
+        CONJUR_ACCOUNT: "conjur"
+        CONJUR_SERVICE_ID: "agit"
+      run: |
+        echo "test"
