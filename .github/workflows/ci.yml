@@ -22,6 +22,5 @@ jobs:
           CONJUR_ACCOUNT: "conjur"
           CONJUR_SERVICE_ID: "agit"
         run: |
-          yum install git -y
           git --version
 
