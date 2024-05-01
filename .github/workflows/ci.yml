@@ -1,0 +1,31 @@
+name: Policy Onboarding
+
+# Watch Policy branch
+on:
+  push:
+    branches:
+      -  main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  handle-policy:
+    runs-on: [self-hosted]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          fetch-depth: 0
+      - name: Onboard to Conjur
+        env:
+          CONJUR_URL: "https://sme-andrew.secretsmgr.cyberark.cloud/api"
+          CONJUR_ACCOUNT: "conjur"
+          CONJUR_SERVICE_ID: "agit"
+        run: |
+          echo "Retrieving JWT Token from Github"
+          GIT_TOKEN=$(curl -s -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
+          echo "Authenticating to Conjur"
+          SESSION_TOKEN=$(curl -s -k --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
+          git diff-tree --no-commit-id --name-only -r ${{ github.sha }}

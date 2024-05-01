@@ -1,0 +1,9 @@
+
+- !group git-jwt-apps-admins
+
+- !policy
+  id: git-jwt-apps
+  owner: !group git-jwt-apps-admins
+  body:
+    # Proxy RBAC role for use with Authenticator
+    - !group git-jwt-proxy
