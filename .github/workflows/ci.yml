@@ -4,7 +4,7 @@ name: Policy Onboarding
 on:
   push:
     branches:
-      -  policy
+      -  main
 
 permissions:
   id-token: write
