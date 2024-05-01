@@ -7,7 +7,7 @@ on:
       -  policy
 
 jobs:
-  policy:
+  handle-policy:
     runs-on: [self-hosted]
     steps:
       - name: Checkout
@@ -18,4 +18,7 @@ jobs:
           CONJUR_ACCOUNT: "conjur"
           CONJUR_SERVICE_ID: "agit"
         run: |
-          echo "test"
+          printenv
+          git 
+          echo "$ACTIONS_ID_TOKEN_REQUEST_URL"
+          echo "$ACTIONS_ID_TOKEN_REQUEST_TOKEN"
