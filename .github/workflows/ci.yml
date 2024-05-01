@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Onboard to Conjur
         env:
           CONJUR_URL: "https://sme-andrew.secretsmgr.cyberark.cloud/api"
