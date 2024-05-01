@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Onboard to Conjur
         env:
           CONJUR_URL: "https://sme-andrew.secretsmgr.cyberark.cloud/api"
@@ -28,8 +26,4 @@ jobs:
           GIT_TOKEN=$(curl -s -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
           echo "Authenticating to Conjur"
           SESSION_TOKEN=$(curl -s -k --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
-          files=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})
-          for f in $files
-            do
-              echo "$f"
-            done
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | xargs)"
