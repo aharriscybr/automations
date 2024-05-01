@@ -22,6 +22,8 @@ jobs:
           CONJUR_ACCOUNT: "conjur"
           CONJUR_SERVICE_ID: "agit"
         run: |
-          
+          echo "Retrieving JWT Token from Github"
           t=$(curl -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
+          echo "Authenticating to Conjur"
           ct=$(curl -vv -k --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$t")
+          echo "$ct"
