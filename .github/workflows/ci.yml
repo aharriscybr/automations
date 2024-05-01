@@ -19,6 +19,6 @@ jobs:
           CONJUR_SERVICE_ID: "agit"
         run: |
           printenv
-          git 
+          git diff-tree
           echo "$ACTIONS_ID_TOKEN_REQUEST_URL"
           echo "$ACTIONS_ID_TOKEN_REQUEST_TOKEN"
