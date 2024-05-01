@@ -27,5 +27,5 @@ jobs:
           echo "Authenticating to Conjur"
           SESSION_TOKEN=$(curl -s -k --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
           echo $SESSION_TOKEN
-          git diff-tree --no-commit-id --diff-filter=d --name-only
+          git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
           
