@@ -1,0 +1,45 @@
+name: conjur-cloud-apikey
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  # Triggers the workflow on push events but only for the "main" branch
+  # push:
+  #   branches: [ "main" ]
+jobs:
+  test:
+    env:
+
+      # PIPELINE RUN VARIABLES
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_PROJECT_ID: ""
+      GOOGLE_TYPE: ""
+      GOOGLE_PRIVATE_KEY_ID: ""
+      GOOGLE_PRIVATE_KEY: ""
+      GOOGLE_CLIENT_EMAIL: ""
+      CONJUR_URL: "https://sme-andrew.secretsmgr.cyberark.cloud/api"
+      CONJUR_ACCOUNT: "conjur"
+      CONJUR_SERVICE_ID: "agit"
+      
+    runs-on: [ubuntu-latest]
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+
+# CyberArk Adding value:
+      - name: 'Fetch secrets'
+        run: |
+          # API Key Auth
+          # SESSION_TOKEN=$(curl -s "${{ vars.CONJUR_URL }}/authn/${{ vars.CONJUR_ACCOUNT }}/authenticate" -H "Accept-Encoding:base64" -d "${{secrets.CONJUR_API_KEY}}")
+          GIT_TOKEN=$(curl -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value )
+          SESSION_TOKEN=$(curl -vv --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
+          
+          # Each repo will have to customize
+          #google_credential_object=$(curl -s -H "Authorization: Token token=\"${SESSION_TOKEN}\"" "${{ vars.CONJUR_URL }}/secrets/conjur/variable/data/vault/${{ vars.CONJUR_SAFE }}/${{ vars.CONJUR_OBJECT_GOOGLE }}/password" | base64 -w 0 | base64 -w 0 )
+          
+          #export GOOGLE_PROJECT_ID=$(echo $google_credential_object | jq -r .project_id)
+          #export GOOGLE_CLIENT_ID=$(echo $google_credential_object | jq -r .client_id)
+
+          #echo "$GOOGLE_PROJECT_ID"
+          #echo "$GOOGLE_CLIENT_ID"
