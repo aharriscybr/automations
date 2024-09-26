@@ -39,9 +39,9 @@ jobs:
           
           # Each repo will have to customize
           google_credential_object=$(curl -vv -H "Authorization: Token token=\"${SESSION_TOKEN}\"" "$CONJUR_URL/secrets/$CONJUR_ACCOUNT/variable/data/vault/AAM_ANDY_TEST/functional_example/password" | base64 -w 0 | base64 -w 0 )
-          
-          export GOOGLE_PROJECT_ID=$(echo $google_credential_object | jq -r .private_key)
-          export GOOGLE_CLIENT_ID=$(echo $google_credential_object | jq -r .auth_uri)
+          echo "$google_credential_object"
+          #export GOOGLE_PROJECT_ID=$(echo $google_credential_object | jq -r .private_key)
+          #export GOOGLE_CLIENT_ID=$(echo $google_credential_object | jq -r .auth_uri)
 
-          echo "$GOOGLE_PROJECT_ID"
-          echo "$GOOGLE_CLIENT_ID"
+          #echo "$GOOGLE_PROJECT_ID"
+          #echo "$GOOGLE_CLIENT_ID"
