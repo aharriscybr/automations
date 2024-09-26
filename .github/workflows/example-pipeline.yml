@@ -32,8 +32,10 @@ jobs:
         run: |
           # API Key Auth
           # SESSION_TOKEN=$(curl -s "${{ vars.CONJUR_URL }}/authn/${{ vars.CONJUR_ACCOUNT }}/authenticate" -H "Accept-Encoding:base64" -d "${{secrets.CONJUR_API_KEY}}")
-          GIT_TOKEN=$(curl -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value )
-          SESSION_TOKEN=$(curl -vv --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
+          #GIT_TOKEN=$(curl -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value )
+          # SESSION_TOKEN=$(curl -vv --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
+          
+          SESSION_TOKEN=$(curl "${{ vars.CONJUR_URL }}/authn/${{ vars.CONJUR_ACCOUNT }}/host%2Fdata%2Fapps%2FAAM_Automation_Operations/authenticate" -H "Accept-Encoding:base64" -d "${{ secrets.CONJUR_API_KEY }}")
           
           # Each repo will have to customize
           #google_credential_object=$(curl -s -H "Authorization: Token token=\"${SESSION_TOKEN}\"" "${{ vars.CONJUR_URL }}/secrets/conjur/variable/data/vault/${{ vars.CONJUR_SAFE }}/${{ vars.CONJUR_OBJECT_GOOGLE }}/password" | base64 -w 0 | base64 -w 0 )
