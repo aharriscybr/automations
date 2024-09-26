@@ -35,10 +35,10 @@ jobs:
           #GIT_TOKEN=$(curl -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value )
           # SESSION_TOKEN=$(curl -vv --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
           
-          SESSION_TOKEN=$(curl -vv "$CONJUR_URL/authn/$CONJUR_ACCOUNT/host%2Fdata%2Fapps%2FAAM_Automation_Operations/authenticate" -H "Accept-Encoding:base64" -d "${{ secrets.CONJUR_API_KEY }}")
+          SESSION_TOKEN=$(curl -s "$CONJUR_URL/authn/$CONJUR_ACCOUNT/host%2Fdata%2Fapps%2FAAM_Automation_Operations/authenticate" -H "Accept-Encoding:base64" -d "${{ secrets.CONJUR_API_KEY }}")
           
           # Each repo will have to customize
-          #google_credential_object=$(curl -s -H "Authorization: Token token=\"${SESSION_TOKEN}\"" "${{ vars.CONJUR_URL }}/secrets/conjur/variable/data/vault/${{ vars.CONJUR_SAFE }}/${{ vars.CONJUR_OBJECT_GOOGLE }}/password" | base64 -w 0 | base64 -w 0 )
+          google_credential_object=$(curl -vv -H "Authorization: Token token=\"${SESSION_TOKEN}\"" "$CONJUR_URL/secrets/$CONJUR_ACCOUNT/variable/data/vault/AAM_ANDY_TEST/functional_example/password" | base64 -w 0 | base64 -w 0 )
           
           #export GOOGLE_PROJECT_ID=$(echo $google_credential_object | jq -r .project_id)
           #export GOOGLE_CLIENT_ID=$(echo $google_credential_object | jq -r .client_id)
