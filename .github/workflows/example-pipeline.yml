@@ -42,6 +42,10 @@ jobs:
           #echo "$google_credential_object"
           export GOOGLE_PROJECT_ID=$(echo $google_credential_object | jq -r .private_key)
           export GOOGLE_CLIENT_ID=$(echo $google_credential_object | jq -r .auth_uri)
-
+# This is no longer our piece
+# application begins here
+      - name: 'Test Credentials'
+        run: |
+          echo "Testing Environment Variables"
           echo "$GOOGLE_PROJECT_ID"
           echo "$GOOGLE_CLIENT_ID"
