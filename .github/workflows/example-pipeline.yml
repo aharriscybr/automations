@@ -1,4 +1,4 @@
-name: Policy Onboarding
+name: Secret Pipeline Testing
 # Controls when the workflow will run
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -7,7 +7,7 @@ on:
   # push:
   #   branches: [ "main" ]
 jobs:
-  test:
+  test-credential:
     env:
 
       # PIPELINE RUN VARIABLES
@@ -28,7 +28,7 @@ jobs:
     steps:
 
 # CyberArk Adding value:
-      - name: 'Fetch secrets'
+      - name: 'Initialize Secrets'
         run: |
           # API Key Auth
           # SESSION_TOKEN=$(curl -s "${{ vars.CONJUR_URL }}/authn/${{ vars.CONJUR_ACCOUNT }}/authenticate" -H "Accept-Encoding:base64" -d "${{secrets.CONJUR_API_KEY}}")
