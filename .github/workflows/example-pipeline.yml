@@ -45,6 +45,10 @@ jobs:
           #echo "$google_credential_object"
           GOOGLE_PROJECT_ID=$(echo $google_credential_object | jq -r .private_key)
           GOOGLE_CLIENT_ID=$(echo $google_credential_object | jq -r .auth_uri)
+
+          echo "$GOOGLE_PROJECT_ID"
+          echo "$GOOGLE_CLIENT_ID"
+          
 # This is no longer our piece
 # application begins here
       - name: 'Test Credentials'
