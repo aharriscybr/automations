@@ -38,7 +38,7 @@ jobs:
           SESSION_TOKEN=$(curl -s "$CONJUR_URL/authn/$CONJUR_ACCOUNT/host%2Fdata%2Fapps%2FAAM_Automation_Operations/authenticate" -H "Accept-Encoding:base64" -d "${{ secrets.CONJUR_API_KEY }}")
           
           # Each repo will have to customize
-          google_credential_object=$(curl -vv -H "Authorization: Token token=\"${SESSION_TOKEN}\"" "$CONJUR_URL/secrets/$CONJUR_ACCOUNT/variable/data/vault/AAM_ANDY_TEST/functional_example/password" )
+          google_credential_object=$(curl -s -H "Authorization: Token token=\"${SESSION_TOKEN}\"" "$CONJUR_URL/secrets/$CONJUR_ACCOUNT/variable/data/vault/AAM_ANDY_TEST/functional_example/password" )
           #echo "$google_credential_object"
           export GOOGLE_PROJECT_ID=$(echo $google_credential_object | jq -r .private_key)
           export GOOGLE_CLIENT_ID=$(echo $google_credential_object | jq -r .auth_uri)
