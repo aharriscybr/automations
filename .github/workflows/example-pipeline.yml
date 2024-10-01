@@ -31,3 +31,4 @@ jobs:
       - name: 'Initialize Secrets'
         run: |
           GIT_TOKEN=$(curl -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | base64 -w 0)
+          echo "$GIT_TOKEN"
