@@ -30,7 +30,7 @@ jobs:
           payload=$(echo "$JWT_TOKEN" | cut -d "." -f 2 | base64 -d)
           iat=$(echo "$payload" | jq .iat )
 
-          if (( "$iat" < "$EPOCHSECONDS" )); then
+          if (( "$iat" <= "$EPOCHSECONDS" )); then
 
           echo "No need to delay, authenticate away!"
 
