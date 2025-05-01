@@ -31,7 +31,6 @@ jobs:
           padd="=="
           jwt_padded="${j_body}${padd}"
           payload=$(echo "$jwt_padded" | base64 -d)
-          echo "$payload"
           iat=$( echo "$payload" | jq .iat )
           if (( "$iat" <= "$EPOCHSECONDS" )); then
 
