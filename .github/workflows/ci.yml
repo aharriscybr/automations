@@ -42,6 +42,3 @@ jobs:
           else
              echo "unhandled problem"
           fi
-          #echo "Authenticating to Conjur"
-          #SESSION_TOKEN=$(curl -vv -k --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
-          #git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
