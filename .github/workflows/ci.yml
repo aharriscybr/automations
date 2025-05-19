@@ -28,7 +28,7 @@ jobs:
           $int_token = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
           $git_headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
           $git_headers.Add("Authorization", "Bearer $int_token")
-          $GIT_TOKEN = Invoke-RestMethod -Uri $url -Method POST -Headers $git_headers -ErrorAction SilentlyContinue
-          git diff-tree --no-commit-id --name-only -r $GITHUB_SHA
+          $GIT_TOKEN = Invoke-RestMethod -Uri $url -Method POST -Headers $git_headers
+          echo $GIT_TOKEN
           echo $url
           echo $int_token
