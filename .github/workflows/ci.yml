@@ -27,4 +27,4 @@ jobs:
         run: |
           set -x
           GIT_TOKEN=$(curl -vv -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value )
-          curl -v -k https://18.191.236.124/v1/auth/jwt/login -d "{\"jwt\" : \"${GIT_TOKEN}\", "role": "some role"}"
+          curl -v -k https://18.191.236.124/v1/auth/jwt/login -d "{\"jwt\" : \"${GIT_TOKEN}\", "role": "some_role"}"
