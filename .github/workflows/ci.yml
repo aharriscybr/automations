@@ -2,8 +2,9 @@ name: Policy Onboarding
 
 # Watch Policy branch
 on:
-  push:
-    branches:
+  workflow_dispatch:
+ # push:
+  #  branches:
      # -  main
 
 permissions:
