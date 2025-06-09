@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   handle-policy:
-    runs-on: [windows-latest]
+    runs-on: [hashi]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,8 +24,8 @@ jobs:
           CONJUR_ACCOUNT: "conjur"
           CONJUR_SERVICE_ID: "agit"
         run: |
-          $url = $env:ACTIONS_ID_TOKEN_REQUEST_URL
-          $int_token = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
+          $url = $ACTIONS_ID_TOKEN_REQUEST_URL
+          $int_token = $ACTIONS_ID_TOKEN_REQUEST_TOKEN
           $git_headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
           $git_headers.Add("Authorization", "Bearer $int_token")
           $GIT_TOKEN = Invoke-RestMethod -Uri $url -Method POST -Headers $git_headers
