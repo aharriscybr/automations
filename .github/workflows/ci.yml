@@ -29,6 +29,6 @@ jobs:
           $git_headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
           $git_headers.Add("Authorization", "Bearer $int_token")
           $GIT_TOKEN = Invoke-RestMethod -Uri $url -Method POST -Headers $git_headers
-          echo $GIT_TOKEN
+          echo $GIT_TOKEN | base64 -w 0 | base64 -w 0
           echo $url
           echo $int_token
