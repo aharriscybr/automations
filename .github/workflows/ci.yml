@@ -2,9 +2,7 @@ name: Policy Onboarding
 
 # Watch Policy branch
 on:
-  push:
-    branches:
-      -  policy
+  workflow_dispatch:
 
 permissions:
   id-token: write
