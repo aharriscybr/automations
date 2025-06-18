@@ -1,30 +1,48 @@
 name: Policy Onboarding
 
-# Watch Policy branch
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - dev/infra
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  handle-policy:
+  verify-pipeline:
     runs-on: [ubuntu-latest]
     steps:
-      - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Checkout Repo
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Onboard to Conjur
+          fetch-depth: 10
+      - name: Test Auth to Conjur
         env:
           CONJUR_URL: "https://sme-andrew.secretsmgr.cyberark.cloud/api"
           CONJUR_ACCOUNT: "conjur"
-          CONJUR_SERVICE_ID: "keys-brokeded"
+          CONJUR_SERVICE_ID: "a-git"
+          CONJUR_GITHUB_BRANCH: "data/github"
+          CONJUR_SAFE_PATH: "data/vault"
         run: |
-          echo "Retrieving JWT Token from Github"
-          GIT_TOKEN=$(curl -s -H "Authorization:bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
-          echo "Authenticating to Conjur"
-          SESSION_TOKEN=$(curl -vv -k --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
-          git diff-tree --no-commit-id --name-only -r $GITHUB_SHA
-          echo $SESSION_TOKEN
+          set -x
+          git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA}
+          SESSION_TOKEN=$(curl -s --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
+          files=$(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA})
+          for f in $files
+          do
+            if [ "$f" == ".gitlab-ci.yml" ]; then
+              echo "Found Gitlab CI File Modified".
+            # Verify file exists.
+            elif [ -f "$file" ]; then
+
+            if [[ "$file" == *github/01_*.yml ]]; then
+              echo "01 Github file found, creating host..."
+              cat "$file"
+              curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X PATCH "$CONJUR_URL/policies/conjur/policy/$CONJUR_GIT_BRANCH" -d "$(cat $file)"
+            fi
+
+            else
+              echo "Skipping $f - not found"
+            fi
+          done
