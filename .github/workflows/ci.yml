@@ -1,48 +1,104 @@
-name: Policy Onboarding
+job_for_policy:
+  image: 
+  id_tokens:
+    CONJUR_JWT:
+      aud: conjur-${ENV}
+  variables:
+    CONJUR_URL: "https://${URL}/api"
+    CONJUR_AUTHN_URL: "${CONJUR_URL}/authn-jwt/${AUTHN_SERVICE}/conjur/authenticate"
+    CONJUR_RETRIEVE_URL: "${CONJUR_URL}/secrets/conjur/variable"
+    CONJUR_GIT_BRANCH: ""
+    CONJUR_VAULT_PATH: ""
+    CONJUR_KUBERNETES_BRANCH: ""
+  script: 
+    - |
+     export SESSION_TOKEN=$(curl -s -X POST $CONJUR_AUTHN_URL -H "Content-Type:application/x-www-form-urlencoded" -H "Accept-Encoding:base64" --data-urlencode "jwt=${CONJUR_JWT}")
+     git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHORT_SHA
+     files=$(git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHORT_SHA)
+     for f in $files
+      do
+        if [ "$f" == ".gitlab-ci.yml" ]; then
+          echo "Found Gitlab CI File Modified".
+        # Verify file exists.
+        elif [ -f "$f" ]; then
 
-on:
-  push:
-    branches:
-      - dev/infra
+          # Creating Hosts
 
-permissions:
-  id-token: write
-  contents: read
+          if [[ "$f" == *gitlab/*/01_*.yml ]]; then
+            echo "01 file found, creating host..."
+            echo "$f"
+            cat $f
+            curl -X PUT -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X PATCH "$CONJUR_URL/policies/conjur/policy/$CONJUR_GIT_BRANCH" -d "$(cat $f)"
+          fi
 
-jobs:
-  verify-pipeline:
-    runs-on: [ubuntu-latest]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 10
-      - name: Test Auth to Conjur
-        env:
-          CONJUR_URL: "https://sme-andrew.secretsmgr.cyberark.cloud/api"
-          CONJUR_ACCOUNT: "conjur"
-          CONJUR_SERVICE_ID: "a-git"
-          CONJUR_GITHUB_BRANCH: "data/github"
-          CONJUR_SAFE_PATH: "data/vault"
-        run: |
-          set -x
-          git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA}
-          SESSION_TOKEN=$(curl -s --request POST "$CONJUR_URL/authn-jwt/$CONJUR_SERVICE_ID/$CONJUR_ACCOUNT/authenticate" --header "Content-Type: application/x-www-form-urlencoded" --header "Accept-Encoding: base64" --data-urlencode "jwt=$GIT_TOKEN")
-          files=$(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA})
-          for f in $files
-          do
-            if [ "$f" == ".gitlab-ci.yml" ]; then
-              echo "Found Gitlab CI File Modified".
-            # Verify file exists.
-            elif [ -f "$file" ]; then
+          # Creating Hosts
 
-            if [[ "$file" == *github/01_*.yml ]]; then
-              echo "01 Github file found, creating host..."
-              cat "$file"
-              curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X PATCH "$CONJUR_URL/policies/conjur/policy/$CONJUR_GIT_BRANCH" -d "$(cat $file)"
-            fi
+          if [[ "$f" == *kube/*/01_*.yml ]]; then
+            echo "01 file found, creating host..."
+            echo "$f"
+            cat $f
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X PATCH "$CONJUR_URL/policies/conjur/policy/$CONJUR_KUBERNETES_BRANCH" -d "$(cat $f)"
+          fi
 
-            else
-              echo "Skipping $f - not found"
-            fi
-          done
+          # Updating Hosts
+          if [[ "$f" == *gitlab/*02_*.yml ]]; then
+            echo "02 file found, updating host..."
+            SAFE=$(head -n 1 $f)
+            SAFEAPI=$( echo "$SAFE" | tr -d "\#" | tr -d "\r")
+            echo "found api path: $SAFEAPI"
+            cat $f
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" "$CONJUR_URL/policies/conjur/policy/$CONJUR_VAULT_PATH/$SAFEAPI/delegation" -d "$(cat $f)"
+          fi
+
+          # Delete Statements
+          if [[ "$f" == *git/delete.yml ]]; then
+            echo "Found host to delete..."
+            echo "$f"
+            cat $f
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X PATCH "$CONJUR_URL/policies/conjur/policy/$CONJUR_GIT_BRANCH" -d "$(cat $f)"
+          fi
+
+          # Infrastructure Statements
+          if [[ "$f" == *infrastructure/01_jwt-*.yml ]]; then
+            echo "Creating new authenticator"
+            SERVICE_ID=$(head -n 1 $f)
+            SERVICE=$( echo "$SERVICE_ID" | tr -d "\#" | tr -d "\r")
+            echo "found service id path: $SERVICE"
+            echo "Onboarding Authenticator $SERVICE"
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X PATCH "$CONJUR_URL/policies/conjur/policy/conjur/authn-jwt" -d "$(cat $f)"
+            #echo "Enabling Authenticator"
+            #curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -H "Content-Type: application/x-www-form-urlencoded" -X PATCH "$CONJUR_URL/authn-jwt/$SERVICE/conjur" -d "enabled=true"
+          fi
+          if [[ "$f" == *infrastructure/*.data ]]; then
+            echo "Configuring Authenticator.."
+            SERVICE_ID=$(head -n 1 $f)
+            SERVICE=$( echo "$SERVICE_ID" | tr -d "\#" | tr -d "\r")
+            ISSUER_RAW=$(head -n 2 $f)
+            $ISSUER=$( echo "$ISSUER_RAW" | tr -d "\#" | tr -d "\r")
+            echo "found service id path: $SERVICE"
+            echo "found issuer: $ISSUER"
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X POST "$CONJUR_URL/secrets/conjur/variable/conjur/authn-jwt/$SERVICE/token-app-property" -d "sub"
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X POST "$CONJUR_URL/secrets/conjur/variable/conjur/authn-jwt/$SERVICE/identity-path" -d "$CONJUR_GCP_BRANCH"
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X POST "$CONJUR_URL/secrets/conjur/variable/conjur/authn-jwt/$SERVICE/audience" -d "conjur"
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X POST "$CONJUR_URL/secrets/conjur/variable/conjur/authn-jwt/$SERVICE/issuer" -d "$ISSUER"
+          fi
+          if [[ "$f" == *infrastructure/*.json ]]; then
+            set -x
+            echo "Configuring Authenticator.."
+            if="infrastructure/"
+            js=".json"
+            SERVICE=${$f}
+            echo "found service id path: $SERVICE"
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X POST "$CONJUR_URL/secrets/conjur/variable/conjur/authn-jwt/$SERVICE/public-keys" -d "{\"type\":\"jwks\", \"value\":$(cat $f)}"
+            set +x
+          fi
+          if [[ "$f" == *infrastructure/delete.yml ]]; then
+            echo "Found host to delete..."
+            echo "$f"
+            cat $f
+            curl -H "Authorization:Token token=\"${SESSION_TOKEN}\"" -X PATCH "$CONJUR_URL/policies/conjur/policy/$CONJUR_GIT_BRANCH" -d "$(cat $f)"
+          fi
+        else
+          echo "Skipping $f - not found"
+        fi
+      done
